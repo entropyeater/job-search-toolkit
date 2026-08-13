@@ -1,0 +1,86 @@
+{
+  "_comment": "Example config for a Bay-Area / remote Senior+ Product Design job search, with two bonus families (design management, and Product Manager roles in a specific niche) showing off every gate type. Copy this file, rename it, and edit the regexes to match YOUR target role, seniority, and geography. See README.md 'Customizing your config' for a field-by-field walkthrough.",
+
+  "geography": {
+    "_comment": "Role-location gating, applied to every family. A role's location string must match include_regex. If it ALSO matches foreign_regex it's dropped unless it ALSO matches us_override_regex. Delete this whole 'geography' block to disable location filtering entirely (e.g. for a fully-remote-anywhere search).",
+    "include_regex": "san francisco|oakland|berkeley|emeryville|alameda|richmond|walnut creek|pleasanton|dublin|san ramon|hayward|fremont|east bay|bay area|remote|united states|\\bus\\b|\\bu\\.s\\.|usa|california|\\bca\\b",
+    "foreign_regex": "ireland|\\bindia\\b|\\bind\\b|united kingdom|\\bu\\.?k\\.?\\b|london|germany|berlin|france|paris|spain|poland|romania|portugal|netherlands|brazil|mexico|singapore|australia|japan|\\bemea\\b|\\bapac\\b|\\blatam\\b|canada|toronto|vancouver|sweden|stockholm|switzerland|zurich|israel|tel aviv|\\buae\\b|dubai|\\bchina\\b|beijing|shanghai|hong kong|taiwan|korea|seoul|philippines|vietnam|indonesia|malaysia|thailand|argentina|colombia|chile|peru|new zealand",
+    "us_override_regex": "united states|\\bus\\b|\\bu\\.s\\.|usa|california|\\bca\\b|san francisco|oakland|new york|remote.?us|us.?remote",
+    "priority_regex": "san francisco|oakland|berkeley|east bay|emeryville|alameda"
+  },
+
+  "seniority_rank": [
+    {"regex": "principal|head|vp|director|chief", "score": 5},
+    {"regex": "staff", "score": 4},
+    {"regex": "lead", "score": 3},
+    {"regex": "senior|sr\\.?\\b", "score": 2}
+  ],
+
+  "role_families": [
+    {
+      "key": "design-ic",
+      "label": "Senior/Staff/Principal Product Design (individual contributor)",
+      "primary": true,
+      "_comment": "'primary': true means this family also drives the shared Match_Confidence / Source_Method / Web_Search_Needed columns.",
+      "include_regex": "product design|ux design|ux researcher|ui/ux|interaction design|design system|experience design|product designer|ux designer",
+      "exclude_regex": "engineer|graphic|program manager|product manager|brand|learning|marketing|content|recruit|sales|developer advocate|\\bdeveloper\\b|software develop|\\bswe\\b|frontend|front-end|full stack|full-stack",
+      "require_seniority": true,
+      "seniority_regex": "senior|staff|principal|lead|head|director|sr\\.?\\b",
+      "theme_gate": {
+        "mode": "column",
+        "_comment": "Only active per-company when the CSV row's 'enabled_when_column' cell is non-blank. Useful for large diversified companies where you only want roles in a specific org (e.g. a company that makes many products, but you only want its developer-tools division). Leave the column blank for any company where you'll accept any matching role.",
+        "enabled_when_column": "Role_Theme_Filter",
+        "keywords_regex": "developer experience|developer platform|developer productivity|developer tool|\\bdevex\\b|\\bdx\\b|observability|monitoring|telemetry|\\bAPM\\b|logging|tracing|internal tool|internal platform|platform engineering|infrastructure|employee experience|enterprise tool|admin"
+      },
+      "columns": {
+        "title": "Best_Match_Title",
+        "location": "Best_Match_Location",
+        "pay": "Best_Match_Pay_Range",
+        "url": "Best_Match_URL",
+        "additional_count": "Additional_Matches_Count",
+        "theme": "Best_Match_Theme"
+      }
+    },
+    {
+      "key": "design-mgr",
+      "label": "Design people-manager roles requiring < 5 years of management experience",
+      "include_regex": "design manager|manager,?\\s*(of\\s+)?(product\\s+|ux\\s+|experience\\s+|visual\\s+)?design|head of\\s+(product\\s+|ux\\s+)?design|director,?\\s*(of\\s+)?(product\\s+|ux\\s+)?design|design director|ux manager|manager,?\\s*ux|group design manager|manager,?\\s*(of\\s+)?user experience|head of user experience",
+      "exclude_regex": "\\bproduct manager\\b|\\bproduct management\\b|engineer|graphic|brand|marketing|content|program manager|project manager|product marketing|recruit|sales|research manager|manager,?\\s*(of\\s+)?research|instructional|learning|community",
+      "require_seniority": false,
+      "years_experience_gate": {
+        "_comment": "Parses the job description for the smallest 'N years' figure sitting near a management-related term, and DROPS the role if that figure is >= max_years. A description that never states a management-years requirement is KEPT and marked 'unspecified' (no-false-negatives — you verify manually).",
+        "max_years": 5,
+        "terms_regex": "manag|leading|leadership|people leader|direct report|supervis|running a team|building.{0,20}team"
+      },
+      "columns": {
+        "title": "Design_Mgr_Match_Title",
+        "location": "Design_Mgr_Match_Location",
+        "url": "Design_Mgr_Match_URL",
+        "additional_count": "Design_Mgr_Additional_Count",
+        "years_required": "Design_Mgr_Mgmt_Years"
+      }
+    },
+    {
+      "key": "pm",
+      "label": "Product Manager roles in observability / BI / developer-experience",
+      "include_regex": "\\bproduct manager\\b|\\bproduct management\\b|group product manager|head of product\\b|director,?\\s*(of\\s+)?product\\b|\\bproduct lead\\b|\\bproduct owner\\b",
+      "exclude_regex": "\\bproduct design\\b|product marketing|program manager|project manager|engineer|\\bdesigner\\b|\\bassociate\\b|\\bjunior\\b|\\bjr\\.?\\b|intern\\b|new grad|entry level|partner manager|account manager|community|sales|recruit",
+      "require_seniority": false,
+      "theme_gate": {
+        "mode": "always",
+        "_comment": "'always' means this gate applies to every company, not just ones with a CSV flag set. A role counts if its title/department matches keywords_regex, OR if the company itself is 'native' to the theme (its taxonomy columns match native_company_regex) — at a company whose whole product IS observability, a plain 'Senior Product Manager' is on-theme by construction.",
+        "keywords_regex": "observability|monitoring|telemetry|\\bAPM\\b|log management|logging|tracing|incident|on-?call|\\bSRE\\b|reliability|business intelligence|\\bBI\\b|analytics|data visuali[sz]ation|dashboard|metrics|semantic layer|data warehouse|\\bETL\\b|data platform|reporting|developer experience|developer platform|developer productivity|developer tool|\\bdevex\\b|\\bDX\\b|platform engineering|internal tool|API platform|\\bSDK\\b|integrations|build system|\\bCI/?CD\\b",
+        "native_company_regex": "observability|monitoring|business intelligence|\\bBI\\b|analytics|semantic layer|data infrastructure|data & ai|developer experience|api platforms|internal tooling|app dev",
+        "native_company_columns": ["Category_L2", "Category_L3"]
+      },
+      "columns": {
+        "title": "PM_Match_Title",
+        "location": "PM_Match_Location",
+        "pay": "PM_Match_Pay_Range",
+        "url": "PM_Match_URL",
+        "additional_count": "PM_Additional_Count",
+        "theme": "PM_Match_Theme"
+      }
+    }
+  ]
+}

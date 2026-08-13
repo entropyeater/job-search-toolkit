@@ -1,0 +1,6 @@
+config.json
+companies.csv
+results.json
+*.bak
+__pycache__/
+*.pyc
