@@ -74,6 +74,10 @@ Only two columns are truly required: a company name column and a website/domain 
 - Salary is only ever populated where the ATS itself exposes it (mainly Ashby, occasionally Greenhouse) — never inferred.
 - `Additional_Matches_Count` tells you a company has more than one qualifying role, but only the single best match (by the `seniority_rank` ranking) gets written to the row. The full list is in the JSON output if you need it.
 
+## Using this with an AI coding agent
+
+If you're running this via Claude Code or a similar agent rather than by hand, see `AGENTS.md` — it covers the operating rules an agent should follow (the do-not-update rule, when the web-search fallback is and isn't appropriate, and how to avoid reporting hallucinated roles as confirmed).
+
 ## Files
 
 ```
@@ -81,6 +85,7 @@ config.example.json     — full worked example: 3 role families, all gate types
 companies.example.csv   — minimal example company list
 scripts/ats_probe.py    — probes ATS APIs, applies your config's filters
 scripts/apply_results.py — writes ats_probe.py's JSON output onto your CSV
+AGENTS.md               — operating rules for an AI agent running this toolkit
 ```
 
 ## License
